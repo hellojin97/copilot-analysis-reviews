@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 import json
 import sys
+import os
 from pathlib import Path
 
 # 프로젝트 루트를 Python 경로에 추가
@@ -706,10 +707,33 @@ def main():
     print("📧 이메일 리포트 전송 시스템")
     print("=" * 80)
     
-    # 이메일 설정
-    SENDER_EMAIL = "ilhj1228@gmail.com"
-    APP_PASSWORD = "phoc nhry asbr svnn"
-    RECIPIENT_EMAIL = "ilhj1228@gmail.com"
+    # 환경변수에서 이메일 설정 로드
+    SENDER_EMAIL = os.getenv('SENDER_EMAIL')
+    APP_PASSWORD = os.getenv('APP_PASSWORD')
+    RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
+    
+    # 환경변수 확인
+    if not SENDER_EMAIL or not APP_PASSWORD:
+        print("❌ 오류: 환경변수가 설정되지 않았습니다.")
+        print("\n필수 환경변수:")
+        print("  - SENDER_EMAIL: 송신자 이메일 주소")
+        print("  - APP_PASSWORD: Gmail 앱 비밀번호")
+        print("  - RECIPIENT_EMAIL: 수신자 이메일 주소 (선택, 기본값: SENDER_EMAIL과 동일)")
+        print("\n환경변수 설정 방법:")
+        print("  Windows PowerShell:")
+        print('    $env:SENDER_EMAIL="your@gmail.com"')
+        print('    $env:APP_PASSWORD="your_app_password"')
+        print('    $env:RECIPIENT_EMAIL="recipient@gmail.com"')
+        print("\n  또는 .env 파일 생성:")
+        print("    SENDER_EMAIL=your@gmail.com")
+        print("    APP_PASSWORD=your_app_password")
+        print("    RECIPIENT_EMAIL=recipient@gmail.com")
+        return
+    
+    # 수신자가 없으면 송신자와 동일하게 설정
+    if not RECIPIENT_EMAIL:
+        RECIPIENT_EMAIL = SENDER_EMAIL
+        print(f"ℹ️  수신자 이메일이 설정되지 않아 송신자와 동일하게 설정됩니다: {RECIPIENT_EMAIL}")
     
     # EmailReporter 초기화
     reporter = EmailReporter(

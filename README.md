@@ -192,16 +192,54 @@ for rec in recommendations:
 
 ### 3. 이메일 리포트 전송
 
+#### 환경변수 설정
+
+**1단계: `.env` 파일 생성**
+
+프로젝트 루트에 `.env` 파일을 생성하고 이메일 정보를 입력하세요:
+
 ```bash
-python -m emailer.send_email_report
+# .env.example을 복사하여 .env 파일 생성
+cp .env.example .env
+
+# Windows
+copy .env.example .env
 ```
 
-**환경변수 설정** (`.env` 파일):
-```
+`.env` 파일 내용:
+```env
 SENDER_EMAIL=your@gmail.com
 APP_PASSWORD=your_app_password
 RECIPIENT_EMAIL=recipient@gmail.com
 ```
+
+**2단계: Gmail 앱 비밀번호 생성**
+
+1. Google 계정 → 보안
+2. 2단계 인증 활성화
+3. 앱 비밀번호 생성
+4. "메일" 선택 후 생성된 16자리 비밀번호 복사
+
+**3단계: 이메일 발송**
+
+```bash
+# Windows PowerShell (환경변수로 직접 설정)
+$env:SENDER_EMAIL="your@gmail.com"
+$env:APP_PASSWORD="your_app_password"
+$env:RECIPIENT_EMAIL="recipient@gmail.com"
+python -m emailer.send_email_report
+
+# Linux/Mac (환경변수로 직접 설정)
+export SENDER_EMAIL="your@gmail.com"
+export APP_PASSWORD="your_app_password"
+export RECIPIENT_EMAIL="recipient@gmail.com"
+python -m emailer.send_email_report
+
+# .env 파일 사용 (권장)
+python -m emailer.send_email_report
+```
+
+**참고**: `.env` 파일은 `.gitignore`에 포함되어 있어 Git에 커밋되지 않습니다.
 
 ---
 
