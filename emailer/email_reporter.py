@@ -145,7 +145,7 @@ class EmailReporter:
         }}
         
         .container {{
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 10px;
@@ -156,48 +156,48 @@ class EmailReporter:
         .header {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 40px;
+            padding: 30px;
             text-align: center;
         }}
         
         .header h1 {{
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 28px;
+            margin-bottom: 8px;
         }}
         
         .header p {{
-            font-size: 16px;
+            font-size: 14px;
             opacity: 0.9;
         }}
         
         .content {{
-            padding: 40px;
+            padding: 30px;
         }}
         
         .section {{
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }}
         
         .section-title {{
-            font-size: 24px;
+            font-size: 20px;
             color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
             border-bottom: 3px solid #667eea;
         }}
         
         .stats-grid {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
         }}
         
         .stat-card {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 25px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }}
         
@@ -368,6 +368,46 @@ class EmailReporter:
         .alert-box strong {{
             color: #856404;
         }}
+        
+        /* 차트 그리드 레이아웃 */
+        .chart-grid {{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }}
+        
+        .chart-item {{
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        
+        .chart-item h3 {{
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }}
+        
+        .chart-item img {{
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }}
+        
+        .chart-full {{
+            grid-column: 1 / -1;
+        }}
+        
+        .priority-compact {{
+            font-size: 13px;
+        }}
+        
+        .priority-compact td {{
+            padding: 10px;
+        }}
     </style>
 </head>
 <body>
@@ -427,8 +467,10 @@ class EmailReporter:
         if include_charts:
             html_content += """
                 <!-- 감성 분포 차트 -->
-                <div style="text-align: center; margin-top: 30px;">
-                    <img src="cid:sentiment_pie" alt="Sentiment Pie Chart" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="margin-top: 30px;">
+                    <div class="chart-item">
+                        <img src="cid:sentiment_pie" alt="Sentiment Pie Chart" style="max-width: 100%; height: auto; border-radius: 10px;">
+                    </div>
                 </div>
 """
         
@@ -493,14 +535,20 @@ class EmailReporter:
                 <!-- 차트 이미지 섹션 -->
                 <div style="margin-top: 40px;">
                     <h3 style="margin-bottom: 20px; color: #555;">📊 시각화 분석</h3>
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <img src="cid:priority_bar" alt="Priority Bar Chart" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    
+                    <!-- 2열 그리드 레이아웃 -->
+                    <div class="chart-grid">
+                        <div class="chart-item">
+                            <img src="cid:priority_bar" alt="Priority Bar Chart" style="max-width: 100%; height: auto; border-radius: 10px;">
+                        </div>
+                        <div class="chart-item">
+                            <img src="cid:rating_comparison" alt="Rating Comparison" style="max-width: 100%; height: auto; border-radius: 10px;">
+                        </div>
                     </div>
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <img src="cid:rating_comparison" alt="Rating Comparison" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    </div>
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <img src="cid:keyword_wordcloud" alt="Keyword Wordcloud" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    
+                    <!-- 전체 너비 차트 -->
+                    <div class="chart-item chart-full" style="margin-top: 20px;">
+                        <img src="cid:keyword_wordcloud" alt="Keyword Wordcloud" style="max-width: 100%; height: auto; border-radius: 10px;">
                     </div>
                 </div>
 """
@@ -539,6 +587,15 @@ class EmailReporter:
                     <div style="color: #666; font-size: 14px;">
                         주요 키워드: {keywords}
                     </div>
+                </div>
+"""
+            
+            # 추천 시스템 차트 추가 (조건부)
+            if include_charts:
+                html_content += """
+                <!-- 추천 시스템 산점도 -->
+                <div class="chart-item chart-full" style="margin-top: 20px;">
+                    <img src="cid:recommendation_scatter" alt="Recommendation Scatter" style="max-width: 100%; height: auto; border-radius: 10px;">
                 </div>
 """
             
