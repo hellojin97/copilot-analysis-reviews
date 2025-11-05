@@ -4,9 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       recipient_email:
-        description: '수신자 이메일 주소'
+        description: '수신자 이메일 주소 (선택사항, 기본값: SENDER_EMAIL과 동일)'
         required: false
-        default: 'ilhj1228@gmail.com'
         type: string
 
 jobs:
@@ -49,15 +48,18 @@ jobs:
         env:
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
-          RECIPIENT_EMAIL: ${{ inputs.recipient_email }}
+          RECIPIENT_EMAIL: ${{ inputs.recipient_email || secrets.SENDER_EMAIL }}
         run: |
+          echo "📧 이메일 전송 시작"
+          echo "송신자: $SENDER_EMAIL"
+          echo "수신자: $RECIPIENT_EMAIL"
           python -m emailer.send_email_report
       
       - name: 전송 완료 알림
         if: success()
         run: |
           echo "✅ 이메일 리포트가 성공적으로 전송되었습니다!"
-          echo "수신자: ${{ inputs.recipient_email }}"
+          echo "수신자: ${{ inputs.recipient_email || secrets.SENDER_EMAIL }}"
       
       - name: 전송 실패 알림
         if: failure()
