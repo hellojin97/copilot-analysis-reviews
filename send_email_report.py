@@ -137,10 +137,16 @@ def main():
             app_password=APP_PASSWORD
         )
         
-        # 3. HTML 리포트 생성
-        html_content = reporter.generate_html_report(data)
+        # 3. 차트 생성
+        from chart_generator import ChartGenerator
+        print("\n차트 생성 중...")
+        generator = ChartGenerator()
+        chart_images = generator.create_all_charts(data)
         
-        # 4. 이메일 전송
+        # 4. HTML 리포트 생성
+        html_content = reporter.generate_html_report(data, include_charts=True)
+        
+        # 5. 이메일 전송
         today = datetime.now().strftime("%Y년 %m월 %d일")
         subject = f"[리뷰 분석] 대시보드 리포트 - {today}"
         
@@ -148,7 +154,8 @@ def main():
             recipient_email=RECIPIENT_EMAIL,
             subject=subject,
             html_content=html_content,
-            attach_json=data  # JSON 원본 데이터도 첨부
+            attach_json=data,  # JSON 원본 데이터도 첨부
+            chart_images=chart_images  # 차트 이미지 첨부
         )
         
         print("\n" + "=" * 80)

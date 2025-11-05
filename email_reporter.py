@@ -11,6 +11,7 @@ from email.mime.image import MIMEImage
 from datetime import datetime
 from typing import Dict, List, Optional
 import json
+from chart_generator import ChartGenerator
 
 
 class EmailReporter:
@@ -84,12 +85,13 @@ class EmailReporter:
             print(f"❌ 데이터 수집 중 오류: {e}")
             raise
     
-    def generate_html_report(self, data: Dict) -> str:
+    def generate_html_report(self, data: Dict, include_charts: bool = True) -> str:
         """
         HTML 리포트 생성
         
         Args:
             data (Dict): API 데이터
+            include_charts (bool): 차트 이미지 포함 여부
             
         Returns:
             str: HTML 콘텐츠
@@ -463,6 +465,9 @@ class EmailReporter:
         html_content += """
                     </tbody>
                 </table>
+                
+                <!-- 차트 이미지 섹션 -->
+                {'<div style="margin-top: 40px;"><h3 style="margin-bottom: 20px; color: #555;">📊 시각화 분석</h3><div style="text-align: center; margin-bottom: 30px;"><img src="cid:priority_bar" alt="Priority Bar Chart" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div><div style="text-align: center; margin-bottom: 30px;"><img src="cid:rating_comparison" alt="Rating Comparison" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div><div style="text-align: center; margin-bottom: 30px;"><img src="cid:keyword_wordcloud" alt="Keyword Wordcloud" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div></div>' if include_charts else ''}
             </div>
 """
         
@@ -525,7 +530,8 @@ class EmailReporter:
                    recipient_email: str, 
                    subject: str, 
                    html_content: str,
-                   attach_json: Optional[Dict] = None):
+                   attach_json: Optional[Dict] = None,
+                   chart_images: Optional[Dict] = None):
         """
         이메일 전송
         
@@ -534,20 +540,36 @@ class EmailReporter:
             subject (str): 이메일 제목
             html_content (str): HTML 콘텐츠
             attach_json (Dict, optional): 첨부할 JSON 데이터
+            chart_images (Dict, optional): 차트 이미지 딕셔너리 (name -> BytesIO)
         """
         print("\n" + "=" * 80)
         print("이메일 전송 중...")
         print("=" * 80)
         
-        # 이메일 메시지 생성
-        msg = MIMEMultipart('alternative')
+        # 이메일 메시지 생성 (related로 변경 - 이미지 임베드 지원)
+        msg = MIMEMultipart('related')
         msg['From'] = self.sender_email
         msg['To'] = recipient_email
         msg['Subject'] = subject
         
+        # Alternative 파트 (HTML과 텍스트)
+        msg_alternative = MIMEMultipart('alternative')
+        msg.attach(msg_alternative)
+        
         # HTML 파트 추가
         html_part = MIMEText(html_content, 'html', 'utf-8')
-        msg.attach(html_part)
+        msg_alternative.attach(html_part)
+        
+        # 차트 이미지 첨부 (인라인)
+        if chart_images:
+            print(f"차트 이미지 첨부 중... ({len(chart_images)}개)")
+            for chart_name, img_buffer in chart_images.items():
+                img_buffer.seek(0)  # 버퍼 위치 리셋
+                img_part = MIMEImage(img_buffer.read())
+                img_part.add_header('Content-ID', f'<{chart_name}>')
+                img_part.add_header('Content-Disposition', 'inline', filename=f'{chart_name}.png')
+                msg.attach(img_part)
+                print(f"   ✓ {chart_name}.png 첨부 완료")
         
         # JSON 첨부 (선택사항)
         if attach_json:
@@ -591,7 +613,8 @@ class EmailReporter:
     def send_dashboard_report(self, 
                              recipient_email: str, 
                              api_base_url: str = "http://localhost:8000",
-                             attach_raw_data: bool = False):
+                             attach_raw_data: bool = False,
+                             include_charts: bool = True):
         """
         대시보드 리포트 수집 및 전송 (올인원)
         
@@ -599,6 +622,7 @@ class EmailReporter:
             recipient_email (str): 수신자 이메일
             api_base_url (str): API 서버 주소
             attach_raw_data (bool): 원본 JSON 데이터 첨부 여부
+            include_charts (bool): 차트 이미지 포함 여부
         """
         print("\n" + "=" * 80)
         print("📊 대시보드 리포트 생성 및 전송 프로세스 시작")
@@ -608,10 +632,17 @@ class EmailReporter:
             # 1. API 데이터 수집
             data = self.fetch_api_data(api_base_url)
             
-            # 2. HTML 리포트 생성
-            html_content = self.generate_html_report(data)
+            # 2. 차트 생성 (옵션)
+            chart_images = None
+            if include_charts:
+                print("\n차트 생성 중...")
+                generator = ChartGenerator()
+                chart_images = generator.create_all_charts(data)
             
-            # 3. 이메일 전송
+            # 3. HTML 리포트 생성
+            html_content = self.generate_html_report(data, include_charts=include_charts)
+            
+            # 4. 이메일 전송
             today = datetime.now().strftime("%Y년 %m월 %d일")
             subject = f"[리뷰 분석] 대시보드 리포트 - {today}"
             
@@ -619,7 +650,8 @@ class EmailReporter:
                 recipient_email=recipient_email,
                 subject=subject,
                 html_content=html_content,
-                attach_json=data if attach_raw_data else None
+                attach_json=data if attach_raw_data else None,
+                chart_images=chart_images
             )
             
             print("\n" + "=" * 80)
