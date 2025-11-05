@@ -1,0 +1,340 @@
+{
+  "generated_at": "2025-11-05",
+  "total_products_analyzed": 5,
+  "improvement_priority_list": [
+    {
+      "product_id": 39,
+      "product_name": "전기히터",
+      "category": "가전",
+      "total_negative_keyword_count": 59,
+      "negative_review_count": 24,
+      "total_review_count": 51,
+      "average_rating": 2.8,
+      "negative_ratio": 47.1,
+      "top_negative_keywords": [
+        {
+          "keyword": "실망",
+          "count": 12
+        },
+        {
+          "keyword": "아쉽",
+          "count": 9
+        },
+        {
+          "keyword": "망가지",
+          "count": 8
+        },
+        {
+          "keyword": "의심",
+          "count": 7
+        },
+        {
+          "keyword": "별로",
+          "count": 3
+        }
+      ],
+      "problem_categories": {
+        "품질": [
+          {
+            "keyword": "망가지",
+            "count": 8
+          }
+        ],
+        "배송": [
+          {
+            "keyword": "배송",
+            "count": 1
+          },
+          {
+            "keyword": "늦",
+            "count": 1
+          }
+        ],
+        "사용성": [
+          {
+            "keyword": "불편",
+            "count": 3
+          }
+        ],
+        "가격": [
+          {
+            "keyword": "비싸",
+            "count": 1
+          },
+          {
+            "keyword": "가격",
+            "count": 1
+          }
+        ],
+        "기타": [
+          {
+            "keyword": "실망",
+            "count": 12
+          },
+          {
+            "keyword": "아쉽",
+            "count": 9
+          },
+          {
+            "keyword": "의심",
+            "count": 7
+          }
+        ]
+      }
+    },
+    {
+      "product_id": 75,
+      "product_name": "냉장고 양문형",
+      "category": "가전",
+      "total_negative_keyword_count": 48,
+      "negative_review_count": 19,
+      "total_review_count": 60,
+      "average_rating": 3.27,
+      "negative_ratio": 31.7,
+      "top_negative_keywords": [
+        {
+          "keyword": "실망",
+          "count": 9
+        },
+        {
+          "keyword": "소음",
+          "count": 9
+        },
+        {
+          "keyword": "아쉽",
+          "count": 9
+        },
+        {
+          "keyword": "시끄럽",
+          "count": 6
+        },
+        {
+          "keyword": "별로",
+          "count": 5
+        }
+      ],
+      "problem_categories": {
+        "성능": [
+          {
+            "keyword": "소음",
+            "count": 9
+          },
+          {
+            "keyword": "시끄럽",
+            "count": 6
+          }
+        ],
+        "기타": [
+          {
+            "keyword": "실망",
+            "count": 9
+          },
+          {
+            "keyword": "아쉽",
+            "count": 9
+          },
+          {
+            "keyword": "별로",
+            "count": 5
+          }
+        ]
+      }
+    },
+    {
+      "product_id": 38,
+      "product_name": "수영복",
+      "category": "패션",
+      "total_negative_keyword_count": 46,
+      "negative_review_count": 17,
+      "total_review_count": 43,
+      "average_rating": 3.16,
+      "negative_ratio": 39.5,
+      "top_negative_keywords": [
+        {
+          "keyword": "실망",
+          "count": 10
+        },
+        {
+          "keyword": "별로",
+          "count": 7
+        },
+        {
+          "keyword": "망가지",
+          "count": 5
+        },
+        {
+          "keyword": "아쉽",
+          "count": 5
+        },
+        {
+          "keyword": "의심",
+          "count": 4
+        }
+      ],
+      "problem_categories": {
+        "품질": [
+          {
+            "keyword": "망가지",
+            "count": 5
+          },
+          {
+            "keyword": "품질",
+            "count": 1
+          }
+        ],
+        "사용성": [
+          {
+            "keyword": "불편",
+            "count": 2
+          }
+        ],
+        "가격": [
+          {
+            "keyword": "비싸",
+            "count": 1
+          },
+          {
+            "keyword": "가격",
+            "count": 1
+          }
+        ],
+        "배송": [
+          {
+            "keyword": "배송",
+            "count": 1
+          },
+          {
+            "keyword": "늦",
+            "count": 1
+          }
+        ],
+        "기타": [
+          {
+            "keyword": "실망",
+            "count": 10
+          },
+          {
+            "keyword": "별로",
+            "count": 7
+          },
+          {
+            "keyword": "아쉽",
+            "count": 5
+          }
+        ]
+      }
+    },
+    {
+      "product_id": 60,
+      "product_name": "히터",
+      "category": "가전",
+      "total_negative_keyword_count": 46,
+      "negative_review_count": 21,
+      "total_review_count": 51,
+      "average_rating": 3.04,
+      "negative_ratio": 41.2,
+      "top_negative_keywords": [
+        {
+          "keyword": "실망",
+          "count": 10
+        },
+        {
+          "keyword": "불편",
+          "count": 9
+        },
+        {
+          "keyword": "아쉽",
+          "count": 8
+        },
+        {
+          "keyword": "별로",
+          "count": 5
+        },
+        {
+          "keyword": "의심",
+          "count": 4
+        }
+      ],
+      "problem_categories": {
+        "사용성": [
+          {
+            "keyword": "불편",
+            "count": 9
+          }
+        ],
+        "품질": [
+          {
+            "keyword": "망가지",
+            "count": 3
+          },
+          {
+            "keyword": "품질",
+            "count": 1
+          }
+        ],
+        "기타": [
+          {
+            "keyword": "실망",
+            "count": 10
+          },
+          {
+            "keyword": "아쉽",
+            "count": 8
+          },
+          {
+            "keyword": "별로",
+            "count": 5
+          }
+        ]
+      }
+    },
+    {
+      "product_id": 68,
+      "product_name": "무선 충전 패드",
+      "category": "디지털",
+      "total_negative_keyword_count": 45,
+      "negative_review_count": 17,
+      "total_review_count": 47,
+      "average_rating": 3.3,
+      "negative_ratio": 36.2,
+      "top_negative_keywords": [
+        {
+          "keyword": "아쉽",
+          "count": 12
+        },
+        {
+          "keyword": "나쁘",
+          "count": 7
+        },
+        {
+          "keyword": "실망",
+          "count": 5
+        },
+        {
+          "keyword": "충전",
+          "count": 4
+        },
+        {
+          "keyword": "무선",
+          "count": 3
+        }
+      ],
+      "problem_categories": {
+        "기타": [
+          {
+            "keyword": "아쉽",
+            "count": 12
+          },
+          {
+            "keyword": "나쁘",
+            "count": 7
+          },
+          {
+            "keyword": "실망",
+            "count": 5
+          }
+        ]
+      }
+    }
+  ]
+}

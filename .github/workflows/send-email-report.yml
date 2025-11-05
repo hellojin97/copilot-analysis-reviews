@@ -1,0 +1,67 @@
+name: Send Dashboard Email Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      recipient_email:
+        description: '수신자 이메일 주소'
+        required: false
+        default: 'ilhj1228@gmail.com'
+        type: string
+
+jobs:
+  send-email-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout 코드
+        uses: actions/checkout@v4
+      
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: 의존성 설치
+        run: |
+          python -m pip install --upgrade pip
+          pip install kiwipiepy scikit-learn requests
+      
+      - name: 데이터베이스 확인
+        run: |
+          if [ ! -f "data/reviews.db" ]; then
+            echo "❌ 데이터베이스 파일이 없습니다. CSV 파일을 로드합니다..."
+            python load_csv_to_db_simple.py
+          else
+            echo "✓ 데이터베이스 파일 존재"
+          fi
+      
+      - name: 상품 프로필 캐시 생성
+        run: |
+          if [ ! -f "cache/product_profiles.pkl" ]; then
+            echo "상품 프로필 캐시 생성 중..."
+            python recommendation_system.py
+          else
+            echo "✓ 캐시 파일 존재"
+          fi
+      
+      - name: 이메일 리포트 전송
+        env:
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ inputs.recipient_email }}
+        run: |
+          python send_email_report.py
+      
+      - name: 전송 완료 알림
+        if: success()
+        run: |
+          echo "✅ 이메일 리포트가 성공적으로 전송되었습니다!"
+          echo "수신자: ${{ inputs.recipient_email }}"
+      
+      - name: 전송 실패 알림
+        if: failure()
+        run: |
+          echo "❌ 이메일 전송에 실패했습니다."
+          echo "GitHub Actions 로그를 확인하세요."
