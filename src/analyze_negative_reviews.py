@@ -8,7 +8,7 @@ import json
 import csv
 from collections import defaultdict
 from typing import Dict, List, Tuple
-from text_cleaner import KoreanTextCleaner
+from src.text_cleaner import KoreanTextCleaner
 
 
 class NegativeReviewAnalyzer:

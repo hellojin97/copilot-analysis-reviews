@@ -5,9 +5,16 @@ API 서버 없이 직접 데이터를 수집하여 이메일로 전송합니다.
 """
 import sqlite3
 from datetime import datetime
-from email_reporter import EmailReporter
-from recommendation_system import RecommendationSystem
-from analyze_negative_reviews import NegativeReviewAnalyzer
+import sys
+from pathlib import Path
+
+# 프로젝트 루트를 Python 경로에 추가
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from emailer.email_reporter import EmailReporter
+from src.recommendation_system import RecommendationSystem
+from src.analyze_negative_reviews import NegativeReviewAnalyzer
 
 
 def collect_data_directly():
@@ -138,7 +145,7 @@ def main():
         )
         
         # 3. 차트 생성
-        from chart_generator import ChartGenerator
+        from src.chart_generator import ChartGenerator
         print("\n차트 생성 중...")
         generator = ChartGenerator()
         chart_images = generator.create_all_charts(data)

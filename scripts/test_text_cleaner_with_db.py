@@ -4,7 +4,14 @@
 실제 리뷰 데이터를 불러와서 텍스트 정제 기능을 테스트합니다.
 """
 import sqlite3
-from text_cleaner import KoreanTextCleaner
+import sys
+from pathlib import Path
+
+# 프로젝트 루트를 Python 경로에 추가
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from src.text_cleaner import KoreanTextCleaner
 
 
 def test_with_real_reviews(limit: int = 10):

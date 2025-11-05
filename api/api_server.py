@@ -10,10 +10,16 @@ from typing import List, Optional, Dict
 import uvicorn
 from datetime import datetime
 import os
+import sys
+from pathlib import Path
 
-from recommendation_system import RecommendationSystem
-from analyze_negative_reviews import NegativeReviewAnalyzer
-from email_reporter import EmailReporter
+# 프로젝트 루트를 Python 경로에 추가
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from src.recommendation_system import RecommendationSystem
+from src.analyze_negative_reviews import NegativeReviewAnalyzer
+from emailer.email_reporter import EmailReporter
 
 
 # FastAPI 앱 초기화

@@ -31,7 +31,7 @@ jobs:
         run: |
           if [ ! -f "data/reviews.db" ]; then
             echo "❌ 데이터베이스 파일이 없습니다. CSV 파일을 로드합니다..."
-            python load_csv_to_db_simple.py
+            python scripts/load_csv_to_db_simple.py
           else
             echo "✓ 데이터베이스 파일 존재"
           fi
@@ -40,7 +40,7 @@ jobs:
         run: |
           if [ ! -f "cache/product_profiles.pkl" ]; then
             echo "상품 프로필 캐시 생성 중..."
-            python recommendation_system.py
+            python -m src.recommendation_system
           else
             echo "✓ 캐시 파일 존재"
           fi
@@ -51,7 +51,7 @@ jobs:
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
           RECIPIENT_EMAIL: ${{ inputs.recipient_email }}
         run: |
-          python send_email_report.py
+          python -m emailer.send_email_report
       
       - name: 전송 완료 알림
         if: success()

@@ -11,7 +11,14 @@ from email.mime.image import MIMEImage
 from datetime import datetime
 from typing import Dict, List, Optional
 import json
-from chart_generator import ChartGenerator
+import sys
+from pathlib import Path
+
+# 프로젝트 루트를 Python 경로에 추가
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from src.chart_generator import ChartGenerator
 
 
 class EmailReporter:
@@ -413,6 +420,18 @@ class EmailReporter:
                         <div class="percentage">{sentiment.get('neutral', {}).get('percentage', 0):.1f}%</div>
                     </div>
                 </div>
+"""
+        
+        # 감성 분포 차트 추가 (조건부)
+        if include_charts:
+            html_content += """
+                <!-- 감성 분포 차트 -->
+                <div style="text-align: center; margin-top: 30px;">
+                    <img src="cid:sentiment_pie" alt="Sentiment Pie Chart" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                </div>
+"""
+        
+        html_content += """
             </div>
             
             <!-- 개선 우선순위 섹션 -->
@@ -465,9 +484,27 @@ class EmailReporter:
         html_content += """
                     </tbody>
                 </table>
-                
+"""
+        
+        # 차트 이미지 섹션 (조건부)
+        if include_charts:
+            html_content += """
                 <!-- 차트 이미지 섹션 -->
-                {'<div style="margin-top: 40px;"><h3 style="margin-bottom: 20px; color: #555;">📊 시각화 분석</h3><div style="text-align: center; margin-bottom: 30px;"><img src="cid:priority_bar" alt="Priority Bar Chart" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div><div style="text-align: center; margin-bottom: 30px;"><img src="cid:rating_comparison" alt="Rating Comparison" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div><div style="text-align: center; margin-bottom: 30px;"><img src="cid:keyword_wordcloud" alt="Keyword Wordcloud" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div></div>' if include_charts else ''}
+                <div style="margin-top: 40px;">
+                    <h3 style="margin-bottom: 20px; color: #555;">📊 시각화 분석</h3>
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <img src="cid:priority_bar" alt="Priority Bar Chart" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    </div>
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <img src="cid:rating_comparison" alt="Rating Comparison" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    </div>
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <img src="cid:keyword_wordcloud" alt="Keyword Wordcloud" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    </div>
+                </div>
+"""
+        
+        html_content += """
             </div>
 """
         
