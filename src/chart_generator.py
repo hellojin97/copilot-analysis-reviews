@@ -53,9 +53,34 @@ class ChartGenerator:
         elif system == 'Darwin':  # macOS
             plt.rcParams['font.family'] = 'AppleGothic'
             self.korean_font = fm.FontProperties(family='AppleGothic')
+            print("✓ 한글 폰트 설정: AppleGothic")
         else:  # Linux
-            plt.rcParams['font.family'] = 'DejaVu Sans'
-            self.korean_font = fm.FontProperties(family='DejaVu Sans')
+            # Linux: 나눔 폰트 사용
+            nanum_fonts = [
+                'NanumGothic',
+                'NanumBarunGothic',
+                'NanumMyeongjo'
+            ]
+            
+            # 사용 가능한 나눔 폰트 찾기
+            available_fonts = [f.name for f in fm.fontManager.ttflist]
+            korean_font_name = None
+            
+            for font in nanum_fonts:
+                if font in available_fonts:
+                    korean_font_name = font
+                    break
+            
+            if korean_font_name:
+                plt.rcParams['font.family'] = korean_font_name
+                self.korean_font = fm.FontProperties(family=korean_font_name)
+                print(f"✓ 한글 폰트 설정: {korean_font_name}")
+            else:
+                # Fallback: DejaVu Sans
+                plt.rcParams['font.family'] = 'DejaVu Sans'
+                self.korean_font = fm.FontProperties(family='DejaVu Sans')
+                print("⚠️  나눔 폰트를 찾을 수 없습니다. DejaVu Sans 사용")
+                print("   설치: sudo apt-get install fonts-nanum")
         
         # 마이너스 기호 깨짐 방지
         plt.rcParams['axes.unicode_minus'] = False
