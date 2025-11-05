@@ -354,6 +354,7 @@ class ChartGenerator:
             str: 폰트 파일 경로
         """
         import os
+        import glob
         system = platform.system()
         
         if system == 'Windows':
@@ -371,7 +372,27 @@ class ChartGenerator:
         elif system == 'Darwin':  # macOS
             return '/System/Library/Fonts/AppleGothic.ttf'
         else:  # Linux
-            # Ubuntu/GitHub Actions용 - DejaVu Sans 사용
+            # Ubuntu/GitHub Actions용 - 나눔 폰트 경로 찾기
+            nanum_font_paths = [
+                '/usr/share/fonts/truetype/nanum/NanumGothic.ttf',
+                '/usr/share/fonts/truetype/nanum/NanumBarunGothic.ttf',
+                '/usr/share/fonts/truetype/nanum/NanumMyeongjo.ttf',
+            ]
+            
+            # 설치된 나눔 폰트 찾기
+            for path in nanum_font_paths:
+                if os.path.exists(path):
+                    print(f"✓ 워드클라우드 폰트: {path}")
+                    return path
+            
+            # glob으로 나눔 폰트 검색
+            nanum_fonts = glob.glob('/usr/share/fonts/truetype/nanum/*.ttf')
+            if nanum_fonts:
+                print(f"✓ 워드클라우드 폰트: {nanum_fonts[0]}")
+                return nanum_fonts[0]
+            
+            # Fallback: DejaVu Sans (한글 미지원이지만 기본값)
+            print("⚠️  나눔 폰트를 찾을 수 없습니다. DejaVu Sans 사용 (한글 미지원)")
             return '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
     
     def create_recommendation_scatter_chart(self, recommendations: List[Dict]) -> BytesIO:
