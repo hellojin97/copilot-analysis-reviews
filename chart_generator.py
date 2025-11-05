@@ -13,6 +13,10 @@ import numpy as np
 from io import BytesIO
 from typing import Dict, List, Tuple
 import platform
+import warnings
+
+# 폰트 경고 무시
+warnings.filterwarnings('ignore', category=UserWarning, module='matplotlib')
 
 
 class ChartGenerator:
@@ -22,29 +26,49 @@ class ChartGenerator:
         """ChartGenerator 초기화"""
         self._setup_korean_font()
         self._setup_style()
+        self._rebuild_font_cache()
     
     def _setup_korean_font(self):
         """
         한글 폰트 설정
         """
+        import os
         system = platform.system()
         
         if system == 'Windows':
-            # Windows: 맑은 고딕
-            plt.rcParams['font.family'] = 'Malgun Gothic'
+            # Windows: 맑은 고딕 직접 경로 설정
+            malgun_path = 'C:/Windows/Fonts/malgun.ttf'
+            if os.path.exists(malgun_path):
+                # FontProperties 객체로 저장 (나중에 사용)
+                self.korean_font = fm.FontProperties(fname=malgun_path)
+                # rcParams도 설정
+                plt.rcParams['font.family'] = 'Malgun Gothic'
+                # 직접 경로로 폰트 추가
+                font_entry = fm.FontEntry(fname=malgun_path, name='Malgun Gothic')
+                fm.fontManager.ttflist.insert(0, font_entry)
+                print(f"✓ 한글 폰트 설정: Malgun Gothic ({malgun_path})")
+            else:
+                self.korean_font = fm.FontProperties()
+                print("⚠️  맑은 고딕 폰트를 찾을 수 없습니다.")
         elif system == 'Darwin':  # macOS
-            # macOS: AppleGothic
             plt.rcParams['font.family'] = 'AppleGothic'
+            self.korean_font = fm.FontProperties(family='AppleGothic')
         else:  # Linux
-            # Linux: Noto Sans CJK KR 또는 DejaVu Sans
-            try:
-                # GitHub Actions Ubuntu에서 사용 가능한 폰트
-                plt.rcParams['font.family'] = 'DejaVu Sans'
-            except:
-                pass
+            plt.rcParams['font.family'] = 'DejaVu Sans'
+            self.korean_font = fm.FontProperties(family='DejaVu Sans')
         
         # 마이너스 기호 깨짐 방지
         plt.rcParams['axes.unicode_minus'] = False
+    
+    def _rebuild_font_cache(self):
+        """
+        matplotlib 폰트 캐시 재생성
+        """
+        try:
+            # 폰트 캐시 강제 리로드
+            fm.fontManager.__init__()
+        except:
+            pass
     
     def _setup_style(self):
         """
@@ -75,19 +99,19 @@ class ChartGenerator:
         explode = []
         
         if 'positive' in sentiment_data:
-            labels.append(f"긍정 😊\n{sentiment_data['positive']['percentage']:.1f}%")
+            labels.append(f"긍정\n{sentiment_data['positive']['percentage']:.1f}%")
             sizes.append(sentiment_data['positive']['count'])
             colors.append('#38ef7d')
             explode.append(0.05)
         
         if 'negative' in sentiment_data:
-            labels.append(f"부정 😞\n{sentiment_data['negative']['percentage']:.1f}%")
+            labels.append(f"부정\n{sentiment_data['negative']['percentage']:.1f}%")
             sizes.append(sentiment_data['negative']['count'])
             colors.append('#f45c43')
             explode.append(0.1)  # 부정 강조
         
         if 'neutral' in sentiment_data:
-            labels.append(f"중립 😐\n{sentiment_data['neutral']['percentage']:.1f}%")
+            labels.append(f"중립\n{sentiment_data['neutral']['percentage']:.1f}%")
             sizes.append(sentiment_data['neutral']['count'])
             colors.append('#95a5a6')
             explode.append(0.05)
@@ -101,15 +125,18 @@ class ChartGenerator:
             explode=explode,
             shadow=True,
             startangle=90,
-            textprops={'fontsize': 12, 'weight': 'bold'}
+            textprops={'fontsize': 12, 'weight': 'bold', 'fontproperties': self.korean_font}
         )
         
-        # 자동 텍스트 스타일링
+        # 자동 텍스트 스타일링 (한글 폰트 적용)
+        for text in texts:
+            text.set_fontproperties(self.korean_font)
         for autotext in autotexts:
             autotext.set_color('white')
             autotext.set_fontsize(11)
+            autotext.set_fontproperties(self.korean_font)
         
-        ax.set_title('리뷰 감성 분포', fontsize=16, weight='bold', pad=20)
+        ax.set_title('리뷰 감성 분포', fontsize=16, weight='bold', pad=20, fontproperties=self.korean_font)
         
         # 이미지를 BytesIO로 저장
         buf = BytesIO()
@@ -149,9 +176,12 @@ class ChartGenerator:
                    f'{value:.1f}%', 
                    va='center', fontsize=11, weight='bold')
         
-        ax.set_xlabel('부정 리뷰 비율 (%)', fontsize=12, weight='bold')
-        ax.set_title('개선 우선순위 상품 Top 5 (부정 비율)', fontsize=16, weight='bold', pad=20)
+        ax.set_xlabel('부정 리뷰 비율 (%)', fontsize=12, weight='bold', fontproperties=self.korean_font)
+        ax.set_title('개선 우선순위 상품 Top 5 (부정 비율)', fontsize=16, weight='bold', pad=20, fontproperties=self.korean_font)
         ax.set_xlim(0, max(negative_ratios) * 1.15)
+        
+        # Y축 레이블에 한글 폰트 적용
+        ax.set_yticklabels(products, fontproperties=self.korean_font)
         
         # 그리드 설정
         ax.grid(axis='x', alpha=0.3, linestyle='--')
@@ -189,27 +219,30 @@ class ChartGenerator:
         bars1 = ax1.bar(range(len(products)), ratings, color=colors1, edgecolor='black', linewidth=1.5)
         ax1.set_xticks(range(len(products)))
         ax1.set_xticklabels(products, rotation=45, ha='right', fontsize=10)
-        ax1.set_ylabel('평균 별점', fontsize=11, weight='bold')
-        ax1.set_title('평균 별점', fontsize=14, weight='bold')
+        ax1.set_ylabel('평균 별점', fontsize=11, weight='bold', fontproperties=self.korean_font)
+        ax1.set_title('평균 별점', fontsize=14, weight='bold', fontproperties=self.korean_font)
         ax1.set_ylim(0, 5)
+        ax1.set_xticklabels(products, fontproperties=self.korean_font)
         ax1.axhline(y=3.0, color='orange', linestyle='--', linewidth=2, alpha=0.7, label='기준선 (3.0)')
-        ax1.legend()
+        legend1 = ax1.legend(prop=self.korean_font)
         ax1.grid(axis='y', alpha=0.3, linestyle='--')
         
         # 값 표시
         for bar, value in zip(bars1, ratings):
             height = bar.get_height()
             ax1.text(bar.get_x() + bar.get_width()/2., height + 0.1,
-                    f'{value:.1f}★',
-                    ha='center', va='bottom', fontsize=10, weight='bold')
+                    f'{value:.1f}점',
+                    ha='center', va='bottom', fontsize=10, weight='bold',
+                    fontproperties=self.korean_font)
         
         # 차트 2: 부정 비율
         colors2 = plt.cm.Reds(np.array(negative_ratios) / max(negative_ratios))
         bars2 = ax2.bar(range(len(products)), negative_ratios, color=colors2, edgecolor='black', linewidth=1.5)
         ax2.set_xticks(range(len(products)))
         ax2.set_xticklabels(products, rotation=45, ha='right', fontsize=10)
-        ax2.set_ylabel('부정 비율 (%)', fontsize=11, weight='bold')
-        ax2.set_title('부정 리뷰 비율', fontsize=14, weight='bold')
+        ax2.set_ylabel('부정 비율 (%)', fontsize=11, weight='bold', fontproperties=self.korean_font)
+        ax2.set_title('부정 리뷰 비율', fontsize=14, weight='bold', fontproperties=self.korean_font)
+        ax2.set_xticklabels(products, fontproperties=self.korean_font)
         ax2.grid(axis='y', alpha=0.3, linestyle='--')
         
         # 값 표시
@@ -217,9 +250,10 @@ class ChartGenerator:
             height = bar.get_height()
             ax2.text(bar.get_x() + bar.get_width()/2., height + 1,
                     f'{value:.1f}%',
-                    ha='center', va='bottom', fontsize=10, weight='bold')
+                    ha='center', va='bottom', fontsize=10, weight='bold',
+                    fontproperties=self.korean_font)
         
-        fig.suptitle('별점 vs 부정 비율 비교', fontsize=16, weight='bold', y=1.02)
+        fig.suptitle('별점 vs 부정 비율 비교', fontsize=16, weight='bold', y=1.02, fontproperties=self.korean_font)
         
         # 이미지를 BytesIO로 저장
         buf = BytesIO()
@@ -276,7 +310,7 @@ class ChartGenerator:
         fig, ax = plt.subplots(figsize=(14, 7))
         ax.imshow(wordcloud, interpolation='bilinear')
         ax.axis('off')
-        ax.set_title('부정 리뷰 주요 키워드 (Top 5 상품)', fontsize=16, weight='bold', pad=20)
+        ax.set_title('부정 리뷰 주요 키워드 (Top 5 상품)', fontsize=16, weight='bold', pad=20, fontproperties=self.korean_font)
         
         # 이미지를 BytesIO로 저장
         buf = BytesIO()
@@ -294,10 +328,21 @@ class ChartGenerator:
         Returns:
             str: 폰트 파일 경로
         """
+        import os
         system = platform.system()
         
         if system == 'Windows':
-            return 'C:/Windows/Fonts/malgun.ttf'
+            # Windows 폰트 경로 후보들
+            font_paths = [
+                'C:/Windows/Fonts/malgun.ttf',
+                'C:/Windows/Fonts/malgunbd.ttf',
+                'C:/Windows/Fonts/gulim.ttc',
+                'C:/Windows/Fonts/batang.ttc'
+            ]
+            for path in font_paths:
+                if os.path.exists(path):
+                    return path
+            return 'C:/Windows/Fonts/malgun.ttf'  # 기본값
         elif system == 'Darwin':  # macOS
             return '/System/Library/Fonts/AppleGothic.ttf'
         else:  # Linux
@@ -333,20 +378,23 @@ class ChartGenerator:
         scatter = ax.scatter(similarities, ratings, s=sizes, c=similarities, 
                             cmap='viridis', alpha=0.6, edgecolors='black', linewidth=2)
         
-        # 제품명 레이블
+        # 이 부분은 위에서 이미 추가됨 (중복 제거)
+        
+        ax.set_xlabel('유사도 점수', fontsize=12, weight='bold', fontproperties=self.korean_font)
+        ax.set_ylabel('평균 별점', fontsize=12, weight='bold', fontproperties=self.korean_font)
+        ax.set_title('추천 상품 유사도 vs 별점 (버블 크기 = 리뷰 수)', fontsize=14, weight='bold', pad=20, fontproperties=self.korean_font)
+        ax.grid(True, alpha=0.3, linestyle='--')
+        
+        # 제품명 레이블에 한글 폰트 적용
         for i, txt in enumerate(products):
             ax.annotate(txt, (similarities[i], ratings[i]), 
                        fontsize=9, ha='center', va='bottom',
+                       fontproperties=self.korean_font,
                        bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.3))
-        
-        ax.set_xlabel('유사도 점수', fontsize=12, weight='bold')
-        ax.set_ylabel('평균 별점', fontsize=12, weight='bold')
-        ax.set_title('추천 상품 유사도 vs 별점 (버블 크기 = 리뷰 수)', fontsize=14, weight='bold', pad=20)
-        ax.grid(True, alpha=0.3, linestyle='--')
         
         # 컬러바
         cbar = plt.colorbar(scatter, ax=ax)
-        cbar.set_label('유사도', fontsize=11, weight='bold')
+        cbar.set_label('유사도', fontsize=11, weight='bold', fontproperties=self.korean_font)
         
         # 이미지를 BytesIO로 저장
         buf = BytesIO()
